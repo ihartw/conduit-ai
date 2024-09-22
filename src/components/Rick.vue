@@ -6,7 +6,7 @@ import { ElevenLabsClient, ElevenLabs } from "elevenlabs";
 const talking = ref(false);
 const inputValue = ref('');
 const rickThinking = ref(false);
-const rickResponse = ref(`Before you ask, I'm a copy of Rick Sanchez' consciousness created to do the things he doesn't want to do.`);
+const rickResponse = ref(`I'm a copy of Rick Sanchez' consciousness created to answer the questions he doesn't have time for. Ask me anything.`);
 const portalOpen = ref(false);
 const audioPlaying = ref(false);
 
@@ -126,6 +126,7 @@ const sendMessage = async () => {
             style: 0.2
          }
       });
+      console.log(response);
       rickTalk(audio, response.choices[0].message.content);
    } catch (error) {
       console.error(error);
