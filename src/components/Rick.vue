@@ -36,55 +36,62 @@ const typeWriter = (rickText) => {
 }
 
 const rickTalk = async (audio, rickText) => {
-   typeWriter(rickText);
-   talking.value = !talking.value;
-   const chunks = [];
-   for await (const chunk of audio) {
-      chunks.push(chunk);
-   }
-   const blob = new Blob(chunks, { type: 'audio/mpeg' });
-   const audioUrl = URL.createObjectURL(blob);
-   const audioPlayer = new Audio(audioUrl);
-
-   const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-   const source = audioContext.createMediaElementSource(audioPlayer);
-   const analyser = audioContext.createAnalyser();
-   source.connect(analyser);
-   analyser.connect(audioContext.destination);
-   await audioPlayer.play();
-   audioPlaying.value = true;
-   analyser.fftSize = 2048;
-   const bufferLength = analyser.fftSize;
-   const dataArray = new Uint8Array(bufferLength);
-   const silenceThreshold = 1;
-   let animationFrameId = null;
-
-   function detectSilence() {
-      analyser.getByteTimeDomainData(dataArray);
-
-      // Calculate the average volume of the signal
-      let sum = 0;
-      for (let i = 0; i < bufferLength; i++) {
-         sum += Math.abs(dataArray[i] - 128);
+   try {
+      typeWriter(rickText);
+      talking.value = !talking.value;
+      const chunks = [];
+      for await (const chunk of audio) {
+         chunks.push(chunk);
       }
+      const blob = new Blob(chunks, { type: 'audio/mpeg' });
+      const audioUrl = URL.createObjectURL(blob);
+      const audioPlayer = new Audio(audioUrl);
 
-      const average = sum / bufferLength;
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      const source = audioContext.createMediaElementSource(audioPlayer);
+      const analyser = audioContext.createAnalyser();
+      source.connect(analyser);
+      analyser.connect(audioContext.destination);
+      await audioPlayer.play();
+      audioPlaying.value = true;
+      analyser.fftSize = 2048;
+      const bufferLength = analyser.fftSize;
+      const dataArray = new Uint8Array(bufferLength);
+      const silenceThreshold = 1;
+      let animationFrameId = null;
 
-      if (average < silenceThreshold) {
+      function detectSilence() {
+         analyser.getByteTimeDomainData(dataArray);
+
+         // Calculate the average volume of the signal
+         let sum = 0;
+         for (let i = 0; i < bufferLength; i++) {
+            sum += Math.abs(dataArray[i] - 128);
+         }
+
+         const average = sum / bufferLength;
+
+         if (average < silenceThreshold) {
+            talking.value = false;
+         } else {
+            talking.value = true;
+         }
+         if (!audioPlayer.ended) {
+            animationFrameId = requestAnimationFrame(detectSilence);
+         }
+      }
+      audioPlayer.addEventListener('ended', () => {
+         cancelAnimationFrame(animationFrameId);
          talking.value = false;
-      } else {
-         talking.value = true;
-      }
-      if (!audioPlayer.ended) {
-         animationFrameId = requestAnimationFrame(detectSilence);
-      }
-   }
-   audioPlayer.addEventListener('ended', () => {
-      cancelAnimationFrame(animationFrameId);
-      talking.value = false;
+         audioPlaying.value = false;
+      });
+      detectSilence();
+   } catch (error) {
+      console.error('error rick tongue tied', error);
+   } finally {
       audioPlaying.value = false;
-   });
-   detectSilence();
+      talking.value = false;
+   }
 }
 
 const sendMessage = async () => {
@@ -100,8 +107,8 @@ const sendMessage = async () => {
                content: `${inputValue.value} Please respond in one or two complete sentences.`
             },
             {
-               role: 'assistant',
-               content: `You are Rick Sanchez from the TV show Rick and Morty. Respond as if you are Rick.`
+               role: 'system',
+               content: `You are Rick Sanchez from the TV show Rick and Morty. Respond as if you are Rick. Isaac Hartwick created you.`
             }
          ],
          model: 'gpt-4o-mini',
@@ -253,7 +260,7 @@ const sendMessage = async () => {
    border: 1px solid black;
    z-index: 1;
    animation-name: blink;
-   animation-duration: 5s;
+   animation-duration: 4s;
    animation-iteration-count: infinite;
    opacity: 0;
 }
@@ -269,7 +276,7 @@ const sendMessage = async () => {
    border: 1px solid black;
    z-index: 1;
    animation-name: blink;
-   animation-duration: 5s;
+   animation-duration: 4s;
    animation-iteration-count: infinite;
    opacity: 0;
 }
