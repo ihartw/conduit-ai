@@ -140,7 +140,7 @@ const sendMessage = async () => {
       <div class="input">
          <input type="input" :value="inputValue" @input="event => inputValue = event.target.value"
             placeholder="Talk to Rick" class="input-field" v-on:keyup.enter="sendMessage">
-         <button @click="sendMessage" class="button-52">Talk to Rick</button>
+         <button @click="sendMessage" class="button-52">Send</button>
       </div>
 
       <div class="rick">
@@ -209,29 +209,14 @@ const sendMessage = async () => {
    border: 1px solid black;
    cursor: pointer;
    position: relative;
-   background-color: rgba(0, 0, 0, 0);
+   background-color: #7fc043;
    user-select: none;
    -webkit-user-select: none;
    touch-action: manipulation;
    display: inline-block;
    left: 5px;
-}
-
-.button-52:after {
-   content: "";
-   background-color: #7fc043;
-   width: 100%;
-   z-index: -1;
-   position: absolute;
-   height: 100%;
-   top: 7px;
-   left: 7px;
-   transition: 0.2s;
-}
-
-.button-52:hover:after {
-   top: 0px;
-   left: 0px;
+   width: 80px;
+   font-family: monospace;
 }
 
 .typewriter {
@@ -398,6 +383,7 @@ const sendMessage = async () => {
    border: 1px solid #000;
    width: 400px;
    margin: 5px;
+   font-family: monospace;
 }
 
 .portal-gun {
