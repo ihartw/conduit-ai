@@ -126,7 +126,6 @@ const sendMessage = async () => {
             style: 0.2
          }
       });
-      console.log(response);
       rickTalk(audio, response.choices[0].message.content);
    } catch (error) {
       console.error(error);
@@ -159,7 +158,8 @@ const sendMessage = async () => {
          <img src="../assets/images/rick2.png" width="500">
          <img v-if="!talking" src="../assets/images/rick-mouth.png" class="rick-mouth">
          <img v-else src="../assets/images/rick-mouth-talk.gif" class="rick-mouth-talk">
-         <p class="typewriter">{{ rickResponse }}</p>
+         <p class="typewriter" v-if="rickThinking">Thinking...</p>
+         <p class="typewriter" v-else>{{ rickResponse }}</p>
       </div>
    </div>
 </template>
