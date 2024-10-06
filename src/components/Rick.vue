@@ -1,7 +1,27 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import OpenAI from "openai";
 import { ElevenLabsClient, ElevenLabs } from "elevenlabs";
+import { useIntersectionObserver, useAnimate } from '@vueuse/core'
+
+
+const isVisible = ref(false);
+const top = ref(null);
+const keyframes = [
+   { opacity: 0 },
+   { opacity: 1 },
+]
+
+useIntersectionObserver(top, ([{ isIntersecting }]) => {
+   if (!isVisible.value && isIntersecting) {
+      isVisible.value = true;
+      useAnimate(top, keyframes, {
+         duration: 1500,
+         fill: 'forwards',
+         easing: 'ease-in-out',
+      });
+   }
+});
 
 const talking = ref(false);
 const inputValue = ref('');
@@ -46,7 +66,6 @@ const rickTalk = async (audio, rickText) => {
       const blob = new Blob(chunks, { type: 'audio/mpeg' });
       const audioUrl = URL.createObjectURL(blob);
       const audioPlayer = new Audio(audioUrl);
-
       const audioContext = new (window.AudioContext || window.webkitAudioContext)();
       const source = audioContext.createMediaElementSource(audioPlayer);
       const analyser = audioContext.createAnalyser();
@@ -136,7 +155,7 @@ const sendMessage = async () => {
 </script>
 
 <template>
-   <div>
+   <div class="container" ref="top">
       <div class="input">
          <input type="input" :value="inputValue" @input="event => inputValue = event.target.value"
             placeholder="Talk to Rick" class="input-field" v-on:keyup.enter="sendMessage">
