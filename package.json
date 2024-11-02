@@ -12,6 +12,7 @@
     "@vueuse/core": "^11.1.0",
     "axios": "^1.7.2",
     "elevenlabs": "^0.16.0",
+    "firebase": "^11.0.1",
     "openai": "^4.62.1",
     "vue": "^3.4.29",
     "vue-router": "^4.3.3"

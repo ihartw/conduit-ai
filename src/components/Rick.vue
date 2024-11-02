@@ -1,8 +1,9 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 import OpenAI from "openai";
 import { ElevenLabsClient, ElevenLabs } from "elevenlabs";
 import { useIntersectionObserver, useAnimate } from '@vueuse/core'
+import { storeConversation } from '../firebaseConfig.js'
 
 
 const isVisible = ref(false);
@@ -105,6 +106,7 @@ const rickTalk = async (audio, rickText) => {
          audioPlaying.value = false;
       });
       detectSilence();
+      storeConversation(inputValue.value, rickText);
    } catch (error) {
       console.error('error rick tongue tied', error);
    } finally {
