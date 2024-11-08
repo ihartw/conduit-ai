@@ -5,7 +5,6 @@ import { ElevenLabsClient, ElevenLabs } from "elevenlabs";
 import { useIntersectionObserver, useAnimate } from '@vueuse/core'
 import { storeConversation } from '../firebaseConfig.js'
 
-
 const isVisible = ref(false);
 const top = ref(null);
 const keyframes = [
@@ -56,10 +55,65 @@ const typeWriter = (rickText) => {
    type();
 }
 
+const trimToCompleteSentences = async (text) => {
+   // Remove unwanted special characters and trim the text to the last complete sentence
+   const cleanedText = text.replace(/[^a-zA-Z0-9\s.!?]/g, '');
+   const match = cleanedText.match(/^(.*[.!?])(?:\s+|$)/);
+   match ? console.log('trimmed: ', match[1].trim()) : console.log('original: ', text);
+   return match ? match[1].trim() : "";
+}
+
+const sendMessage = async () => {
+   if (audioPlaying.value || rickThinking.value || inputValue.value === "") return; // early return if audio is playing, rick is thinking, or input is empty
+ 
+   try {
+      rickThinking.value = true;
+      const response = await openai.chat.completions.create({ // Send the user's message to OpenAI's chat endpoint
+         messages: [
+            {
+               role: 'user',
+               content: `${inputValue.value}`
+            },
+            {
+               role: 'system',
+               content: `You are Rick Sanchez from the TV show Rick and Morty. Respond as if you are Rick. Isaac Hartwick created you.`
+            }
+         ],
+         model: 'gpt-4o-mini',
+         max_tokens: 50
+      });
+
+      // Prune the response so he doesn't stop talking mid-sentence.
+      const prunedResponse = await trimToCompleteSentences(response.choices[0].message.content);
+      rickResponse.value = "";
+
+      // Convert ricks response ElevenLabs text-to-speech API
+      const audio = await elevenlabs.textToSpeech.convert("qCYEy4gbAEuO3MpL5k65", {
+         optimize_streaming_latency: ElevenLabs.OptimizeStreamingLatency.Zero,
+         output_format: ElevenLabs.OutputFormat.Mp32205032,
+         text: prunedResponse,
+         voice_settings: {
+            stability: 0.1,
+            similarity_boost: 0.3,
+            style: 0.2
+         }
+      });
+
+      // Have Rick talk
+      rickTalk(audio, prunedResponse);
+   } catch (error) {
+      console.error(error);
+   } finally {
+      rickThinking.value = false;
+   }
+}
+
 const rickTalk = async (audio, rickText) => {
    try {
-      typeWriter(rickText);
+      typeWriter(rickText); // Type out Rick's response
       talking.value = !talking.value;
+
+      // Create an audio player, play the audio, and analyze the audio to detect silence
       const chunks = [];
       for await (const chunk of audio) {
          chunks.push(chunk);
@@ -80,9 +134,8 @@ const rickTalk = async (audio, rickText) => {
       const silenceThreshold = 1;
       let animationFrameId = null;
 
-      function detectSilence() {
+      const detectSilence = () => {
          analyser.getByteTimeDomainData(dataArray);
-
          // Calculate the average volume of the signal
          let sum = 0;
          for (let i = 0; i < bufferLength; i++) {
@@ -91,67 +144,32 @@ const rickTalk = async (audio, rickText) => {
 
          const average = sum / bufferLength;
 
+         // If the average volume is below the threshold, his mouth stops moving
          if (average < silenceThreshold) {
             talking.value = false;
          } else {
             talking.value = true;
          }
+
          if (!audioPlayer.ended) {
             animationFrameId = requestAnimationFrame(detectSilence);
          }
       }
+
+      // Listen for the end of the audio to stop the animation
       audioPlayer.addEventListener('ended', () => {
          cancelAnimationFrame(animationFrameId);
          talking.value = false;
          audioPlaying.value = false;
       });
+
       detectSilence();
-      storeConversation(inputValue.value, rickText);
+      storeConversation(inputValue.value, rickText); // Store the chat in Firebase
    } catch (error) {
       console.error('error rick tongue tied', error);
    } finally {
       audioPlaying.value = false;
       talking.value = false;
-   }
-}
-
-const sendMessage = async () => {
-   if (audioPlaying.value || rickThinking.value || inputValue.value === "") {
-      return;
-   }
-   try {
-      rickThinking.value = true;
-      const response = await openai.chat.completions.create({
-         messages: [
-            {
-               role: 'user',
-               content: `${inputValue.value} Please respond in one or two complete sentences.`
-            },
-            {
-               role: 'system',
-               content: `You are Rick Sanchez from the TV show Rick and Morty. Respond as if you are Rick. Isaac Hartwick created you.`
-            }
-         ],
-         model: 'gpt-4o-mini',
-         max_tokens: 50
-      });
-      rickResponse.value = "";
-
-      const audio = await elevenlabs.textToSpeech.convert("qCYEy4gbAEuO3MpL5k65", {
-         optimize_streaming_latency: ElevenLabs.OptimizeStreamingLatency.Zero,
-         output_format: ElevenLabs.OutputFormat.Mp32205032,
-         text: response.choices[0].message.content,
-         voice_settings: {
-            stability: 0.1,
-            similarity_boost: 0.3,
-            style: 0.2
-         }
-      });
-      rickTalk(audio, response.choices[0].message.content);
-   } catch (error) {
-      console.error(error);
-   } finally {
-      rickThinking.value = false;
    }
 }
 </script>
@@ -165,10 +183,6 @@ const sendMessage = async () => {
       </div>
 
       <div class="rick">
-         <div v-if="rickThinking" class="thought-bubbles">
-            <div class="bubble-1"></div>
-            <div class="bubble-2"></div>
-         </div>
          <div class="left-eyelid"></div>
          <div class="right-eyelid"></div>
          <div class="left-pupil"></div>
@@ -186,41 +200,6 @@ const sendMessage = async () => {
 </template>
 
 <style scoped>
-.thought-bubbles {
-   position: absolute;
-   top: 20px;
-   left: 30px;
-   width: 110px;
-   height: 90px;
-   background-image: url('../assets/images/rick-dancing.gif');
-   background-size: cover;
-   z-index: -1;
-   border-radius: 60px;
-   border: 2px solid black;
-}
-
-.bubble-1 {
-   position: absolute;
-   top: 77px;
-   left: 89px;
-   width: 28px;
-   height: 28px;
-   background-color: white;
-   border-radius: 100px;
-   border: 1px solid black;
-}
-
-.bubble-2 {
-   position: absolute;
-   top: 91px;
-   left: 110px;
-   width: 17px;
-   height: 17px;
-   background-color: white;
-   border-radius: 100px;
-   border: 1px solid black;
-}
-
 .button-52 {
    font-size: 16px;
    font-weight: 200;
