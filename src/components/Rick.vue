@@ -59,7 +59,6 @@ const trimToCompleteSentences = async (text) => {
    // Remove unwanted special characters and trim the text to the last complete sentence
    const cleanedText = text.replace(/[^a-zA-Z0-9\s.!?]/g, '');
    const match = cleanedText.match(/^(.*[.!?])(?:\s+|$)/);
-   match ? console.log('trimmed: ', match[1].trim()) : console.log('original: ', text);
    return match ? match[1].trim() : "";
 }
 
