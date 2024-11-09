@@ -87,7 +87,7 @@ const sendMessage = async () => {
       const prunedResponse = await trimToCompleteSentences(response.choices[0].message.content);
       rickResponse.value = "";
 
-      // Convert ricks response ElevenLabs text-to-speech API
+      // Convert ricks response to ElevenLabs text-to-speech API
       const audio = await elevenlabs.textToSpeech.convert("qCYEy4gbAEuO3MpL5k65", {
          optimize_streaming_latency: ElevenLabs.OptimizeStreamingLatency.Zero,
          output_format: ElevenLabs.OutputFormat.Mp32205032,
