@@ -43,8 +43,11 @@ npm run build
 - Netlify
 
 ## Challenges while developing
-> **Syncing Ricks mouth with the audio.** - The audio may have pauses in order to sound more realistic, so syncing Ricks mouth movement with the audio was challenging. I had to analyze the audio volume output while it's playing to ensure his mouth stops moving if there's silence in the audio.
-> **Ensuring Rick speaks in complete sentences.** - The OpenAI responses are based off max-tokens so sometimes he would stop speaking mid sentence and increasing the tokens didn't guarantee a complete sentence response. The solution was simple but challenging to think of in the moment.
+**Syncing Ricks mouth with the audio.** 
+> The audio may have pauses in order to sound more realistic, so syncing Ricks mouth movement with the audio was challenging. I had to analyze the audio volume output while it's playing to ensure his mouth stops moving if there's silence in the audio.
+
+**Ensuring Rick speaks in complete sentences.** 
+> The OpenAI responses are based off max-tokens so sometimes he would stop speaking mid sentence and increasing the tokens didn't guarantee a complete sentence response. The solution was simple but challenging to think of in the moment.
 
 ## Known issues
 If you're running this on a mobile device, sometimes the audio fails to play if you have low bandwidth. This happens because of browser autoplay restrictions. Audio playback for browsers require a user interaction or an event (button click) in order to play the audio. This means there is a timeout window in which the browser won't consider it part of the same click event. The payload responses are usually quick enough but under low bandwidth he won't speak but his responses will generate.
