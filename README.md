@@ -1,6 +1,6 @@
 # Conduit-AI
 
-An A.I. chatbot built to allow users to have conversations with their favorite characters. Currently, Rick Sanchez is the only available character but I built it with the intention of adding more. Hence, Rick is componentized.
+An A.I. chatbot that allows users to have conversations with their favorite characters. Currently, Rick Sanchez is the only available character but I built it with the intention of adding more. Hence, Rick is componentized.
 
 ## Project Setup
 
