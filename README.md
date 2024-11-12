@@ -21,8 +21,8 @@ npm run build
 
 ```
 
-## Usage
-- After starting the app, you can interact with Rick via text input and talk to him about whatever you'd like. His responses are somewhat brief, generally around 3-4 complete sentences but he will speak with TTS audio and have conversations.
+## How it works
+> After starting the app, you can interact with Rick via text input and talk to him about whatever you'd like. His responses are somewhat brief, generally around 3-4 complete sentences but he will speak with TTS audio and have conversations.
 
 ## Features
 - Character interaction utilizing the OpenAI LLM
@@ -50,7 +50,7 @@ npm run build
 > The OpenAI responses are based off max-tokens so sometimes he would stop speaking mid sentence and increasing the tokens didn't guarantee a complete sentence response. The solution was simple but challenging to think of in the moment.
 
 ## Known issues
-If you're running this on a mobile device, sometimes the audio fails to play if you have low bandwidth. This happens because of browser autoplay restrictions. Audio playback for browsers require a user interaction or an event (button click) in order to play the audio. This means there is a timeout window in which the browser won't consider it part of the same click event. The payload responses are usually quick enough but under low bandwidth he won't speak but his responses will generate.
+> If you're running this on a mobile device, sometimes the audio fails to play if you have low bandwidth. This happens because of browser autoplay restrictions. Audio playback for browsers require a user interaction or an event (button click) in order to play the audio. This means there is a timeout window in which the browser won't consider it part of the same click event. The payload responses are usually quick enough but under low bandwidth he won't speak but his responses will generate.
 
 ## I hope this project demonstrates:
 - Ability to work with third party REST API's & A.I. technologies
