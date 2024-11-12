@@ -2,17 +2,6 @@
 
 An A.I. chatbot built to allow users to have conversations with their favorite characters. Currently, Rick Sanchez is the only available character.
 
-## Site Link
-https://rick-sanchez-ai.netlify.app/
-
-## Recommended IDE Setup
-
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vitejs.dev/config/).
-
 ## Project Setup
 
 ```sh
